@@ -20,6 +20,7 @@
 #include "iface_cyrf6936.h"
 
 //#define TRAXXAS_FORCE_ID
+//#define TRAXXAS_DEBUG
 
 #define TRAXXAS_CHANNEL 0x05
 #define TRAXXAS_BIND_CHANNEL 0x2B
@@ -65,8 +66,9 @@ static void __attribute__((unused)) TRAXXAS_cyrf_data_config()
 		CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB, 0x1B);
 		CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB, 0x3F);
 	#else
-		CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB, cyrfmfg_id[0]+0xB6);
-		CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB, cyrfmfg_id[1]+0x5D);
+		uint16_t addr=TRAXXAS_EEPROM_OFFSET+RX_num*2;
+		CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB, cyrfmfg_id[0] - eeprom_read_byte((EE_ADDR)(addr + 0)));
+		CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB, cyrfmfg_id[1] - eeprom_read_byte((EE_ADDR)(addr + 1)));
 	#endif
 	CYRF_ConfigRFChannel(TRAXXAS_CHANNEL);
 	CYRF_SetTxRxMode(TX_EN);
@@ -76,6 +78,8 @@ static void __attribute__((unused)) TRAXXAS_send_data_packet()
 {
 	packet[0] = 0x01;
 	memset(&packet[1],0x00,TRAXXAS_PACKET_SIZE-1);
+	//Next RF channel ? 0x00 -> keep current, 0x0E change to F=15
+	//packet[1]
 	//Steering
 	uint16_t ch = convert_channel_16b_nolimit(RUDDER,500,1000,false);
 	packet[2]=ch>>8;
@@ -115,22 +119,35 @@ uint16_t TRAXXAS_callback()
 			status = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
 			if((status & 0x03) == 0x02)  							// RXC=1, RXE=0 then 2nd check is required (debouncing)
 				status |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
-			debugln("s=%02X",status);
+			#ifdef TRAXXAS_DEBUG
+				debugln("s=%02X",status);
+			#endif
 			CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);		// need to set RXOW before data read
 			if((status & 0x07) == 0x02)
 			{ // Data received with no errors
 				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				debugln("L=%02X",len)
+				#ifdef TRAXXAS_DEBUG
+					debugln("L=%02X",len)
+				#endif
 				if(len==TRAXXAS_PACKET_SIZE)
 				{
 					CYRF_ReadDataPacketLen(packet, TRAXXAS_PACKET_SIZE);
-					debug("RX=");
-					for(uint8_t i=0;i<TRAXXAS_PACKET_SIZE;i++)
-						debug(" %02X",packet[i]);
-					debugln("");
+					#ifdef TRAXXAS_DEBUG
+						debug("RX=");
+						for(uint8_t i=0;i<TRAXXAS_PACKET_SIZE;i++)
+							debug(" %02X",packet[i]);
+						debugln("");
+					#endif
+					// Store RX ID
+					uint16_t addr=TRAXXAS_EEPROM_OFFSET+RX_num*2;
+					for(uint8_t i=0;i<2;i++)
+						eeprom_write_byte((EE_ADDR)(addr+i),packet[i+1]);
+					// Replace RX ID by TX ID
 					for(uint8_t i=0;i<6;i++)
 						packet[i+1]=cyrfmfg_id[i];
-					packet[10]=0x01;
+					packet[7 ] = 0xEE;								// Not needed ??
+					packet[10] = 0x01;								// Must change otherwise bind doesn't complete
+					packet[13] = 0x05;								// Not needed ??
 					packet_count=12;
 					CYRF_SetTxRxMode(TX_EN);
 					phase=TRAXXAS_BIND_TX1;
@@ -150,10 +167,12 @@ uint16_t TRAXXAS_callback()
 			return 700;
 		case TRAXXAS_BIND_TX1:
 			CYRF_WriteDataPacketLen(packet, TRAXXAS_PACKET_SIZE);
-			debug("P=");
-			for(uint8_t i=0;i<TRAXXAS_PACKET_SIZE;i++)
-				debug(" %02X",packet[i]);
-			debugln("");
+			#ifdef TRAXXAS_DEBUG
+				debug("P=");
+				for(uint8_t i=0;i<TRAXXAS_PACKET_SIZE;i++)
+					debug(" %02X",packet[i]);
+				debugln("");
+			#endif
 			if(--packet_count==0)	// Switch to normal mode
 				phase=TRAXXAS_PREP_DATA;
 			break;
@@ -179,7 +198,7 @@ void TRAXXAS_init()
 
 	//Read CYRF ID
 	CYRF_GetMfgData(cyrfmfg_id);
-	cyrfmfg_id[0]+=RX_num;
+	//cyrfmfg_id[0]+=RX_num;				// Not needed since the TX and RX have to match
 
 	#ifdef TRAXXAS_FORCE_ID					// data taken from TX dump
 		cyrfmfg_id[0]=0x65;					// CYRF MFG ID
@@ -197,6 +216,13 @@ void TRAXXAS_init()
 	}
 	else
 		phase = TRAXXAS_PREP_DATA;
+	
+	//
+//	phase = TRAXXAS_BIND_TX1;
+//	TRAXXAS_cyrf_bind_config();
+//	CYRF_SetTxRxMode(TX_EN);
+//	memcpy(packet,(uint8_t *)"\x02\x4A\xA3\x2D\x1A\x49\xFE\x06\x00\x00\x02\x01\x06\x06\x00\x00",TRAXXAS_PACKET_SIZE);
+//	memcpy(packet,(uint8_t *)"\x02\xFF\xFF\xFF\xFF\xFF\xFF\x01\x01\x01\x02\x01\x06\x00\x00\x00",TRAXXAS_PACKET_SIZE);
 }
 
 /*
@@ -207,7 +233,15 @@ CRC_SEED_LSB:	0x5A
 CRC_SEED_MSB:	0x5A
 RX1:	0x02	0x4A	0xA3	0x2D	0x1A	0x49	0xFE	0x06	0x00	0x00	0x02	0x01	0x06	0x06	0x00	0x00
 TX1:	0x02	0x65	0xE2	0x5E	0x55	0x4D	0xFE	0xEE	0x00	0x00	0x01	0x01	0x06	0x05	0x00	0x00
-Note: RX cyrfmfg_id is 0x4A,0xA3,0x2D,0x1A,0x49,0xFE and TX cyrfmfg_id is 0x65,0xE2,0x5E,0x55,0x4D,0xFE
+Notes:
+ - RX cyrfmfg_id is 0x4A,0xA3,0x2D,0x1A,0x49,0xFE and TX cyrfmfg_id is 0x65,0xE2,0x5E,0x55,0x4D,0xFE
+ - P[7] changes from 0x06 to 0xEE but not needed to complete the bind -> doesn't care??
+ - P[8..9]=0x00 unchanged??
+ - P[10] needs to be set to 0x01 to complete the bind -> normal packet P[0]??
+ - P[11] unchanged ?? -> no bind if set to 0x00 or 0x81
+ - P[12] unchanged ?? -> no bind if set to 0x05 or 0x86
+ - P[13] changes from 0x06 to 0x05 but not needed to complete the bind -> doesn't care??
+ - P[14..15]=0x00 unchanged??
 
 Bind phase 2 (looks like normal mode?)
 CHANNEL:	0x05
@@ -231,5 +265,13 @@ SOP_CODE:	0xA1	0x78	0xDC	0x3C	0x9E	0x82	0xDC	0x3C
 CRC_SEED_LSB:	0x1B
 CRC_SEED_MSB:	0x3F
 TX3:	0x01	0x00	0x02	0xA8	0x03	0xE7	0x02	0x08	0x00	0x00	0x01	0x01	0x02	0xEE	0x00	0x00
+
+CRC_SEED:
+TX ID: \x65\xE2\x5E\x55\x4D\xFE
+RX ID: \x4A\xA3\x2D\x1A\x49\xFE CRC 0x1B 0x3F => CRC: 65-4A=1B E2-A3=3F
+RX ID: \x4B\xA3\x2D\x1A\x49\xFE CRC 0x1A 0x3F => CRC: 65-4B=1A E2-A3=3F
+RX ID: \x00\x00\x2D\x1A\x49\xFE CRC 0x65 0xE2 => CRC: 65-00=65 E2-00=E2
+RX ID: \x00\xFF\x2D\x1A\x49\xFE CRC 0x65 0xE3 => CRC: 65-00=65 E2-FF=E3
+RX ID: \xFF\x00\x2D\x1A\x49\xFE CRC 0x66 0xE2 => CRC: 65-FF=66 E2-00=E2
 */
 #endif
