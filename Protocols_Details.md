@@ -136,6 +136,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [Scorpio](Protocols_Details.md#Scorpio---94)|94|||||||||CYRF6936|
+[SGF22](Protocols_Details.md#SGF22---97)|97|SGF22||||||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
@@ -326,7 +327,9 @@ CH1|CH2|CH3|CH4
 ## Kyosho - *73*
 
 ### Sub_protocol FHSS - *0*
-Surface protocol called FHSS introduced in 2017. Transmitter: KT-531P. Models: Mini-Z
+Surface protocol called FHSS introduced in 2017. Transmitter: KT-531P. Models: Mini-Z.
+
+Surface protocol called Syncro. TX: KT-331, RX: KR-331
 
 Extended limits supported
 
@@ -1390,9 +1393,11 @@ Models: WLtoys V911S, XK A110
 ### Sub_protocol E119 - *1*
 Models: Eachine E119, JJRC W01-J3, XK A220 P-40, XK A800 R2, F959S R2, A160 R2, A280
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|CALIB|RATE|6G_3D
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|CALIB|RATE|6G_3D|6GSENIOR|LIGHT
+
+A280 -> 6GSENIOR: -100% - 6G, +100% - Senior mode (turn off gyro), LIGHT: cycle the light through on-flash-off when the CH9 value is changed from -100% to 100%
 
 ## XK - *62*
 
@@ -1440,13 +1445,13 @@ Channels 14 and 15 (ANAAUX1 and ANAAUX2) only available with analog aux channel 
 ### Sub_protocol BAYANG - *0*
 Models: Eachine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
-Option=0 -> normal Bayang protocol
+Option=0 or Telemetry = Off -> normal Bayang protocol
 
-Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 5.0 and adjust with offset), A2=compensated battery voltage (set the ratio to 5.0 and adjust with offset) and if supported AccX=P, AccY=I, ACCZ=D (which you can rename after the sensors discovery)
+Option=1 or Telemetry = On -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 5.0 and adjust with offset), A2=compensated battery voltage (set the ratio to 5.0 and adjust with offset) and if supported AccX=P, AccY=I, ACCZ=D (which you can rename after the sensors discovery)
 
-Option=2 -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
+Option=2 or Telemetry = Off+AUX -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
 
-Option=3 -> both Silverware telemetry and analog aux channels enabled.
+Option=3 or Telemetry = On+AUX-> both Silverware telemetry and analog aux channels enabled.
 
 ### Sub_protocol H8S3D - *1*
 Model: H8S 3D
@@ -1751,9 +1756,9 @@ CH1|CH2|CH3|CH4|CH5
 | | |T|R|AUX
 
 ## KN - *9*
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|----
-A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|----|----|----|----
+A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim|Rtrim|HoverDebugging
 
 Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
 
@@ -1929,6 +1934,17 @@ A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|UNK
 
 ### Sub_protocol FAST - *0*
 ### Sub_protocol SLOW - *1*
+
+## SGF22 - *97*
+Autobind protocol
+
+Only 1 ID !!! Need more TX dumps.
+
+Model: SGF22
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|PHOTO
 
 ## Shenqi - *19*
 Autobind protocol
