@@ -296,12 +296,16 @@
 //#define DSM_MAX_THROW
 //Some models (X-Vert, Blade 230S...) require a special value to instant stop the motor(s).
 // You can disable this feature by adding "//" on the line below. You have to specify which channel (14 by default) will be used to kill the throttle channel.
+
 // If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%.
 // For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 #define DSM_THROTTLE_KILL_CH 14 
 
 //Enable DSM Forward Programming
 #define DSM_FWD_PGM
+
+//Enable X-Plus channels, Ch13-16.. if Enabled, will ignore the DSM_THROTTLE_KILL_CH feature
+#define DSM_X_PLUS
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
