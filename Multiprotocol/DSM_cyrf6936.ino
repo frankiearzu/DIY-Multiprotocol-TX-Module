@@ -208,7 +208,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		}
 	#endif
 	
-	#if defined(DSM_THROTTLE_KILL_CH) && not defined(DSM_X_PLUS)
+	#if defined(DSM_THROTTLE_KILL_CH)
 		uint16_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH-1];
 	#endif
 	for (uint8_t i = 0; i < 7; i++)
@@ -224,7 +224,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		{
 			/* Spektrum own remotes transmit normal values during bind and actually use this (e.g. Nano CP X) to
 			   select the transmitter mode (e.g. computer vs non-computer radio), so always send normal output */
-			#if defined(DSM_THROTTLE_KILL_CH) && not defined(DSM_X_PLUS)
+			#if defined(DSM_THROTTLE_KILL_CH)
 				if(idx==CH1 && kill_ch<=604)
 				{//Activate throttle kill only if channel is throttle and DSM_THROTTLE_KILL_CH below -50%
 					if(kill_ch<CHANNEL_MIN_100)		// restrict val to 0...400
@@ -257,7 +257,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
         // CH13-16 lower frame, and Ch17-20 upper. We only do lower right now, since MM cannot handle more than 16ch
         // Channel value is 9 bits, and upper 2 bits is the X-Plus channel (CH13..CH16). 
 			value >>= 2; // Convert to 9 bits
-			value |= (XP_CH << 11) | (x_plus_ch << 9); // CH13 (4bits), XPlus Ch (2 bits), Value (9 bits)
+			value |= (XP_CH << 11) | (x_plus_ch << 9); // constant 12 (4 bits), XPlus Ch (2 bits), Value (9 bits)
 			x_plus_ch = (x_plus_ch + 1) % 4;  // only 0..3
 		} else 
       #endif
