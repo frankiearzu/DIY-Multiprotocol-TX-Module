@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	63
+#define VERSION_PATCH_LEVEL	72
 
 #define MODE_SERIAL 0
 
@@ -136,6 +136,7 @@ enum PROTOCOLS
 	PROTO_WL91X		= 106,	// =>CC2500 & NRF24L01
 	PROTO_WPL		= 107,	// =>NRF24L01
 	PROTO_ARES		= 108,	// =>CC2500
+	PROTO_MOFLY		= 109,	// =>CC2500 & NRF24L01
 	
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -515,6 +516,7 @@ enum SGF22
 	SGF22_F22S		= 1,
 	SGF22_J20 		= 2,
 	SGF22_CX10		= 3,
+	SGF22_T28 		= 4,
 };
 enum JIABAILE
 {
@@ -1172,6 +1174,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==XK
 			X450		0
 			X420		1
+			Cars		2
+			MoFly		3
 		sub_protocol==FRSKY_R9
 			R9_915		0
 			R9_868		1

@@ -281,7 +281,7 @@
 #define	UDIRC_CCNRF_INO
 #define	V911S_CCNRF_INO
 #define	WL91X_CCNRF_INO
-#define	XK_CCNRF_INO
+#define	XK_CCNRF_INO			//Include MoFly protocol
 #define	XK2_CCNRF_INO
 
 //The protocols below need a SX1276 to be installed
@@ -357,6 +357,7 @@
 #define V761_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define KAMTOM_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define FX_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
+#define XK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define XK2_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define SGF22_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define YUXIANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
@@ -789,6 +790,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		PHOENIX
 	PROTO_MLINK
 		NONE
+	PROTO_MOFLY
+		NONE
 	PROTO_MOULDKG
 		MOULDKG_ANALOG4
 		MOULDKG_DIGIT4
@@ -845,10 +848,11 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_SCORPIO
 		NONE
 	PROTO_SGF22
-		SGF22
-		F22S
-  		J20
-		CX10
+		SGF22_F22
+		SGF22_F22S
+  		SGF22_J20
+		SGF22_CX10
+		SGF22_T28
 	PROTO_SHENQI
 		NONE
 	PROTO_SHENQI2

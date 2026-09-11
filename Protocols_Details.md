@@ -126,6 +126,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)||89|||||||||CYRF6936|
 [MJXq](Protocols_Details.md#MJXQ---18)||18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MLINK](Protocols_Details.md#MLINK---78)||78|||||||||CYRF6936|
+[MoFly](Protocols_Details.md#MoFly---109)||109|||||||||NRF24L01&CC2500|XN297
 [MouldKg](Protocols_Details.md#mouldkg---90)||90|A4444|D4444|A664||||||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)||17|MT|H7|YZ|LS|FY805|A180|DRAGON|F949G|NRF24L01|XN297
 [MT99xx2](Protocols_Details.md#MT99XX2---92)||92|PA18|SU35|||||||NRF24L01|XN297
@@ -143,7 +144,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)||50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)||54|||||||||CC2500|
 [Scorpio](Protocols_Details.md#Scorpio---94)||94|||||||||CYRF6936|
-[SGF22](Protocols_Details.md#SGF22---97)||97|F22|F22S|J20|CX10|||||NRF24L01|XN297
+[SGF22](Protocols_Details.md#SGF22---97)||97|F22|F22S|J20|CX10|T28||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)||19|Shenqi||||||||NRF24L01|LT8900
 [Shenqi2](Protocols_Details.md#Shenqi2---105)||105|Shenqi2||||||||NRF24L01|XN297
 [Skyartec](Protocols_Details.md#Skyartec---68)||68|||||||||CC2500|CC2500
@@ -159,7 +160,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [WL91X](Protocols_Details.md#WL91X---106)||106|||||||||NRF24L01&CC2500|XN297
 [WPL](Protocols_Details.md#WPL---107)||107|||||||||NRF24L01|XN297
 [XERALL](Protocols_Details.md#XERALL---91)||91|Tank||||||||NRF24L01|XN297
-[XK](Protocols_Details.md#XK---62)||62|X450|X420|Cars||||||NRF24L01&CC2500|XN297
+[XK](Protocols_Details.md#XK---62)||62|X450|X420|Cars|MoFly|||||NRF24L01&CC2500|XN297
 [XK2](Protocols_Details.md#XK2---99)||99|X4|P10|||||||NRF24L01&CC2500|XN297
 [YD717](Protocols_Details.md#YD717---8)||8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
 [YuXiang](Protocols_Details.md#YuXiang---100)||100|||||||||NRF24L01|XN297
@@ -238,21 +239,21 @@ Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 
 ### Sub_protocol PWM_IBUS - *0*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 
 RX output will match the Flysky standard AETR.
 
 ### Sub_protocol PPM_IBUS - *1*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 
 RX output will match the Flysky standard AETR.
 
 ### Sub_protocol PWM_SBUS - *2*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 
 RX output will match the Flysky standard AETR.
 
@@ -811,6 +812,8 @@ To bind V2 RXs you must follow the below procedure (original):
 ### Sub_protocol FD_V3 - *2*
 FlyDream RXs like IS-4R and IS-4R0
 
+Protronik (PTR-6A) RXs like R8X: you need to initiate binding on the receiver, then on the transmitter, and finally press the bind button on the receiver.
+
 ## E016HV2 - *80*
 Models: E016H v2
 
@@ -1255,6 +1258,19 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
+## MoFly - *109*
+Models: MoFly planes MF-X7, P-51D, MF-A84 and Ki-84
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|Flight_modes|Rate_L/H|Back_Flip|Left_Roll|Right_Roll|Inverted
+
+Flight_modes: -100%=MM-Mode, 0%=3D-Mode, +100%=6G-Mode. CH7-CH9 are momentary switches. CH10 is a toggle switch.
+
 ## MT99XX - *17*
 Autobind protocol
 
@@ -1605,7 +1621,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
 
-Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are momentary switches.
 
 ### Sub_protocol X420 - *1*
 Models: XK X420/X520 (TX=X4)
@@ -1614,7 +1630,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
 
-Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are momentary switches.
 
 Model: Tiger Drone 1400782
 
@@ -1930,7 +1946,7 @@ FX9630 and FX9603 Gyro: -100%=6G small throw, 0%=6G large throw, +100%=3D
 QIDI-550 Gyro: -100%=3D, 0%=6G, +100%=Torque
 
 ### Sub_protocol Q560 - *3*
-Model: QIDI-560, QIDI-580 (Cirrus SR22)
+Model: QIDI-560, QIDI-580, QIDI-590
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
@@ -2365,9 +2381,9 @@ ST TRIM: -100% Left, +100% Right, variable/shouldn't be needed? CH1 trim on stee
 ## SGF22 - *97*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET|BAL|BALHIG
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET|BAL|BALHIG|RTH_SET
 
 Telemetry is supported. The plane sends a battery status of good->empty which is visible in A1 (good=13.2V->empty=0V) and RSSI gets a dummy value of 100.
 
@@ -2388,14 +2404,27 @@ Mode -100% = 3D, 0% = 6G
 ### Sub_protocol J20
 Model: KF700 J20
 
-Mode -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fix Height (Altitude hold)
+Mode: -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fix Height (Altitude hold)
 
 ### Sub_protocol CX10
 Model: Cheerson CX-10 with red PCB
 
 **Only 2 IDs available**, use RX num to cycle through them.
 
-Mode -100% = Low, 0% = Medium, 100% = High
+Mode: -100% = Low, 0% = Medium, 100% = High
+
+### Sub_protocol T28
+Model: FMS T28
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|STUNT|LIGHT|INVERT|RTH|-|-|-|RTH_SET
+
+Mode: -100% = Gyro off, 0% = Stabilized, 100% = Optimized
+
+Notes:
+ - CH6/CH9/CH13 (STUNT, RTH, RTH Set) are NOT required to be bound, or used to fly the plane.
+ - CH9 (RTH) WILL function without CH13 (RTH Set) bound/used.
 
 ## Shenqi - *19*
 Autobind protocol
