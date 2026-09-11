@@ -329,10 +329,12 @@ uint16_t DSM_callback()
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
 	#ifdef STM32_BOARD
 		#define DSM_WRITE_DELAY		1600		// Time after write to verify write complete
-		#define DSM_READ_DELAY		300			// Time before write to check read phase, and switch channels.
+    #define DSM_READ_DELAY_AIR    400     // Air: Time before write to check read phase, and switch channels.
+    #define DSM_READ_DELAY_SRF    300     // Surface: Time before write to check read phase, and switch channels.
 	#else
 		#define DSM_WRITE_DELAY		1950		// Time after write to verify write complete
-		#define DSM_READ_DELAY		600			// Time before write to check read phase, and switch channels.
+    #define DSM_READ_DELAY_AIR		600	 // Time before write to check read phase, and switch channels.
+    #define DSM_READ_DELAY_SRF    600  // Surface: Time before write to check read phase, and switch channels.
 	#endif
 	#if defined DSM_TELEMETRY
 		uint8_t rx_phase;
@@ -429,7 +431,7 @@ uint16_t DSM_callback()
 			return 10000;
 		case DSM_CH1_WRITE_A:
 			#ifdef MULTI_SYNC
-				if(sub_protocol!=DSM2_SFC || option&0x40)		// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
+				if(sub_protocol!=DSM2_SFC || option & MODE_11MS_BIT_MASK)		// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
 					telemetry_set_input_sync(11000);			// Always request 11ms spacing even if we don't use half of it in 22ms mode
 				else
 					telemetry_set_input_sync(DSM2_SFC_PERIOD);
@@ -494,15 +496,15 @@ uint16_t DSM_callback()
 					phase = DSM_CH2_READ_B;
 					if(sub_protocol == DSM2_SFC)
 					{
-						if(option&0x40)		// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
-							return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+						if(option & MODE_11MS_BIT_MASK)		// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
+							return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY_SRF;
 						else
-							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY_SRF;
 					}
-					return 10900 - DSM_WRITE_DELAY - DSM_READ_DELAY;	//Was 11000 but the SR6200A needs 10900 to report telemetry correctly
+					return 10900 - DSM_WRITE_DELAY - DSM_READ_DELAY_SRF;	//Was 11000 but the SR6200A needs 10900 to report telemetry correctly
 				}
 			#endif
-			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY_AIR;
 		case DSM_CH2_READ_A:
 		case DSM_CH2_READ_B:
 			//Read telemetry
@@ -550,7 +552,11 @@ uint16_t DSM_callback()
 			CYRF_SetTxRxMode(TX_EN);						//TX mode
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		//Clear abort RX operation
 			DSM_set_sop_data_crc(false, sub_protocol==DSMX_2F||sub_protocol==DSMX_1F||sub_protocol==DSMR);
-			return DSM_READ_DELAY;
+      #ifndef MULTI_AIR
+        if(sub_protocol==DSMR || sub_protocol == DSM2_SFC)
+          return DSM_READ_DELAY_SRF;
+      #endif
+			return DSM_READ_DELAY_AIR;
 #else
 			// No telemetry
 			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_2F||sub_protocol==DSMX_1F);
@@ -564,7 +570,7 @@ uint16_t DSM_callback()
 					#ifndef MULTI_AIR
 						if(sub_protocol==DSM2_SFC)
 						{
-							if(option&0x40)					// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
+							if(option & MODE_11MS_BIT_MASK)					// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
 								return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
 							else
 								return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
